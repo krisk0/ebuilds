@@ -24,4 +24,4 @@ ebuild --skip-manifest /usr/portage/dev-libs/gmp/gmp-6.1.2-r99.ebuild clean inst
 
 `ebuild ... install qmerge` installs compiled files into a temp directory and their final destination such as `/usr/lib`.
 
-Don't forget to `rm -rf /tmp/portage` after `qmerge`.
+Don't forget to clean `/tmp/portage` (or whatever your portage scratch dir is).
