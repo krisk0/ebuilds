@@ -17,7 +17,7 @@ cp gmp-6.1.2-r99.ebuild /usr/portage/dev-libs/gmp/
 
 2. Run `ebuild` script:
 ```
-ebuild --skip-manifest /usr/portage/dev-libs/gmp/gmp-6.1.2-r99.ebuild clean install
+ebuild --skip-manifest /usr/portage/dev-libs/gmp/gmp-6.1.2-r99.ebuild clean install qmerge
 ```
 
 `ebuild ... install` installs compiled files into a temporary directory such as `/tmp/portage/dev-libs/gmp-6.1.2-r99/image`.
