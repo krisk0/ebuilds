@@ -6,6 +6,9 @@ Reason for creating `gmpy2-...ebuild`: official .ebuild is dated (hard to use th
 
 Reason for creating `gmp-...ebuild`: official .ebuild installs crippled library (without microarch optimisation).
 
+Reason for messing up with `iridium-browser`: want a fast browser that does not segfault as often as Forefox and does not phone home as often as Chromium.
+
+
 ## Installation (quick/hacker way)
 
 Supposing all pre-requisites met, the fastest way to compile/install software is to call `ebuild` directly.
@@ -25,3 +28,12 @@ ebuild --skip-manifest /usr/portage/dev-libs/gmp/gmp-6.1.2-r99.ebuild clean inst
 `ebuild ... install qmerge` installs compiled files into a temp directory and their final destination such as `/usr/lib`.
 
 Don't forget to clean `/tmp/portage` (or whatever your portage scratch dir is).
+
+## Iridium-browser
+
+Current status of `iridium-browser...ebuild`: compiles with settings
+```
+L10N=en-GB USE='-component-build -cups -custom-cflags -gnome-keyring -hangouts -jumbo-build -kerberos -proprietary-codecs -pulseaudio -suid -system-ffmpeg -system-icu -system-libvpx -tcmalloc -widevine'
+
+```
+, does not install due to file collisions with `chromium`.
