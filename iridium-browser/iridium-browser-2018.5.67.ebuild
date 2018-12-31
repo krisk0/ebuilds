@@ -3,11 +3,6 @@
 #                2018 Крыськов Денис
 # Distributed under the terms of the GNU General Public License v2
 
-# this beast has been successfully compiled with clang-6.0.1 with the following flags:
-# L10N=en-GB USE='-component-build -cups -custom-cflags -gnome-keyring -hangouts\
-#  -jumbo-build -kerberos -proprietary-codecs -pulseaudio -suid -system-ffmpeg\
-#  -system-icu -system-libvpx -tcmalloc -widevine'
-
 EAPI=6
 PYTHON_COMPAT=( python2_7 )
 
@@ -30,7 +25,10 @@ KEYWORDS=amd64
 IUSE="component-build cups custom-cflags gnome-keyring hangouts jumbo-build kerberos neon\
     pic proprietary-codecs pulseaudio selinux suid +system-ffmpeg +system-icu\
     +system-libvpx +tcmalloc widevine"
-RESTRICT="!system-ffmpeg? ( proprietary-codecs? ( bindist ) )"
+RESTRICT="
+    !system-ffmpeg? ( proprietary-codecs? ( bindist ) )
+    mirror
+"
 
 COMMON_DEPEND="
 	app-accessibility/at-spi2-atk:2
