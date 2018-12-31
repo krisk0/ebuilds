@@ -4,9 +4,9 @@ useful for me and possibly for you, too.
 
 Reason for creating `gmpy2-...ebuild`: official .ebuild is dated (hard to use that `gmpy2` from Cython).
 
-Reason for creating `gmp-...ebuild`: official .ebuild installs crippled library (without microarch optimisation).
+Reason for creating `gmp-...ebuild`: official .ebuild installs crippled library (without microarch optimization).
 
-Reason for messing up with `iridium-browser`: want a fast browser that does not segfault as often as Forefox and does not phone home as often as Chromium.
+Reason for messing up with `iridium-browser`: want a fast browser that does not segfault as often as Firefox and does not phone home as often as Chromium.
 
 
 ## Installation (quick/hacker way)
@@ -33,7 +33,7 @@ Don't forget to clean `/tmp/portage` (or whatever your portage scratch dir is).
 
 Current status of `iridium-browser...ebuild`: compiles with settings
 ```
-L10N=en-GB USE='-component-build -cups -custom-cflags -gnome-keyring -hangouts -jumbo-build -kerberos -proprietary-codecs -pulseaudio -suid -system-ffmpeg -system-icu -system-libvpx -tcmalloc -widevine'
+L10N=en-GB CFLAGS='-O2 -march=sandybridge' USE='-component-build -cups -custom-cflags -gnome-keyring -hangouts -jumbo-build -kerberos -proprietary-codecs -pulseaudio -suid -system-ffmpeg -system-icu -system-libvpx -tcmalloc -widevine'
 
 ```
 , does not install due to file collisions with `chromium`.
