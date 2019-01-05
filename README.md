@@ -8,6 +8,7 @@ Reason for creating `gmp-...ebuild`: official .ebuild installs crippled library 
 
 Reason for messing up with `iridium-browser`: want a fast browser that does not segfault as often as Firefox and does not phone home as often as Chromium.
 
+Reason for modifying `telegram-desktop...ebuild`: original did not work for me.
 
 ## Installation (quick/hacker way)
 
