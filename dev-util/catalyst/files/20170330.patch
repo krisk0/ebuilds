@@ -1,0 +1,301 @@
+diff -urN a/generic_stage_target.py b/generic_stage_target.py
+--- a/generic_stage_target.py	2019-07-03 10:04:23.209997171 +0300
++++ b/generic_stage_target.py	2019-07-03 10:04:33.549997059 +0300
+@@ -4,6 +4,17 @@
+ from stat import *
+ import catalyst_lock
+ 
++TAR_XZ = '.tar.xz'
++
++def replace_make_sett(what, how, f):
++ how=how.replace('\n','').strip()
++ while 1:
++  h=how.replace("' ","'").replace('  ',' ')
++  if h==how:
++   break
++  how=h
++ cmd('''sed -i "s|%s=.*|%s='%s'|g" %s''' % (what,what,how,f))
++
+ class generic_stage_target(generic_target):
+  """
+  This class does all of the chroot setup, copying of files, etc. It is
+@@ -166,6 +177,7 @@
+   on disk.
+   """
+   #pdb.set_trace()
++  self.settings["distdir"]='/distfiles'
+   file_locate(self.settings,["source_path","snapshot_path","distdir"],\
+    expand=0)
+   """ If we are using portage_confdir, check that as well. """
+@@ -174,18 +186,16 @@
+ 
+   """ Setup our mount points """
+   if "SNAPCACHE" in self.settings:
+-   self.mounts=["/proc", "/dev", "/usr/portage",
+-    "/usr/portage/distfiles", "/var/tmp/portage"]
+    self.mountmap={"/proc":"/proc","/dev":"/dev","/dev/pts":"/dev/pts",\
+     "/usr/portage":self.settings["snapshot_cache_path"]+"/portage",\
+-    "/usr/portage/distfiles":self.settings["distdir"],"/var/tmp/portage":"tmpfs",
+-    "/dev/shm": "shmfs"}
++    "/distfiles":"/distfiles","/var/tmp/portage":"tmpfs",
++    "/dev/shm": "shmfs",'/host_tmp':'/tmp'}
++   a='/tmp/vm.playground'
++   if os.path.isdir(a):
++    self.mountmap['/host_tmp']=a
++   self.mounts=self.mountmap.keys()
+   else:
+-   self.mounts=["/proc", "/dev", "/usr/portage/distfiles",
+-    "/var/tmp/portage"]
+-   self.mountmap={"/proc":"/proc","/dev":"/dev","/dev/pts":"/dev/pts",\
+-    "/usr/portage/distfiles":self.settings["distdir"],"/var/tmp/portage":"tmpfs",
+-    "/dev/shm": "shmfs"}
++   assert 0
+   if os.uname()[0] == "Linux":
+    self.mounts.append("/dev/pts")
+    self.mounts.append("/dev/shm")
+@@ -300,21 +310,13 @@
+ 
+  def set_target_path(self):
+   self.settings["target_path"]=normpath(self.settings["storedir"]+\
+-   "/builds/"+self.settings["target_subpath"]+".tar.bz2")
++   "/builds/"+self.settings["target_subpath"]+TAR_XZ)
+   if "AUTORESUME" in self.settings\
+    and os.path.exists(self.settings["autoresume_path"]+\
+     "setup_target_path"):
+    print \
+     "Resume point detected, skipping target path setup operation..."
+   else:
+-   """ First clean up any existing target stuff """
+-   # XXX WTF are we removing the old tarball before we start building the
+-   # XXX new one? If the build fails, you don't want to be left with
+-   # XXX nothing at all
+-#   if os.path.isfile(self.settings["target_path"]):
+-#    cmd("rm -f "+self.settings["target_path"],\
+-#     "Could not remove existing file: "\
+-#     +self.settings["target_path"],env=self.env)
+    touch(self.settings["autoresume_path"]+"setup_target_path")
+ 
+    if not os.path.exists(self.settings["storedir"]+"/builds/"):
+@@ -386,7 +388,7 @@
+     "/tmp/"+self.settings["source_subpath"]+"/")
+   else:
+    self.settings["source_path"]=normpath(self.settings["storedir"]+\
+-    "/builds/"+self.settings["source_subpath"]+".tar.bz2")
++    "/builds/"+self.settings["source_subpath"]+TAR_XZ)
+    if os.path.isfile(self.settings["source_path"]):
+     # XXX: Is this even necessary if the previous check passes?
+     if os.path.exists(self.settings["source_path"]):
+@@ -400,7 +402,7 @@
+    print "\tseedcache in the options of catalyst.conf the source path"
+    print "\twill then be "+\
+     normpath(self.settings["storedir"]+"/builds/"+\
+-    self.settings["source_subpath"]+".tar.bz2\n")
++    self.settings["source_subpath"]+TAR_XZ+"\n")
+ 
+  def set_dest_path(self):
+   if "root_path" in self.settings:
+@@ -415,7 +417,7 @@
+ 
+  def set_snapshot_path(self):
+   self.settings["snapshot_path"]=normpath(self.settings["storedir"]+\
+-   "/snapshots/portage-"+self.settings["snapshot"]+".tar.xz")
++   "/snapshots/portage-"+self.settings["snapshot"]+TAR_XZ)
+ 
+   if os.path.exists(self.settings["snapshot_path"]):
+    self.settings["snapshot_path_hash"]=\
+@@ -423,7 +425,7 @@
+     hash_function=self.settings["hash_function"],verbose=False)
+   else:
+    self.settings["snapshot_path"]=normpath(self.settings["storedir"]+\
+-    "/snapshots/portage-"+self.settings["snapshot"]+".tar.bz2")
++    "/snapshots/portage-"+self.settings["snapshot"]+TAR_XZ)
+ 
+    if os.path.exists(self.settings["snapshot_path"]):
+     self.settings["snapshot_path_hash"]=\
+@@ -663,7 +665,7 @@
+      unpack_cmd="tar --xattrs --xattrs-include=security.capability --xattrs-include=user.pax.flags --selinux -I lbzip2 -xpf "+self.settings["source_path"]+" -C "+\
+       self.settings["chroot_path"]
+     else:
+-     unpack_cmd="tar --xattrs --xattrs-include=security.capability --xattrs-include=user.pax.flags --selinux -I lbzip2 -xpf "+self.settings["source_path"]+" -C "+\
++     unpack_cmd="tar --xattrs --xattrs-include=security.capability --xattrs-include=user.pax.flags --selinux -xpf "+self.settings["source_path"]+" -C "+\
+       self.settings["chroot_path"]
+     error_msg="Tarball extraction of "+\
+      self.settings["source_path"]+" to "+\
+@@ -678,7 +680,7 @@
+     unpack_cmd="tar --xattrs --xattrs-include=security.capability --xattrs-include=user.pax.flags --selinux -I lbzip2 -xpf "+self.settings["source_path"]+" -C "+\
+      self.settings["chroot_path"]
+    else:
+-    unpack_cmd="tar --xattrs --xattrs-include=security.capability --xattrs-include=user.pax.flags --selinux -I lbzip2 -xpf "+self.settings["source_path"]+" -C "+\
++    unpack_cmd="tar --xattrs --xattrs-include=security.capability --xattrs-include=user.pax.flags --selinux -xpf "+self.settings["source_path"]+" -C "+\
+      self.settings["chroot_path"]
+    error_msg="Tarball extraction of "+self.settings["source_path"]+\
+     " to "+self.settings["chroot_path"]+" failed."
+@@ -786,10 +788,6 @@
+     " (This can take a long time)..."
+    cleanup_errmsg="Error removing existing snapshot cache directory."
+    self.snapshot_lock_object=self.snapcache_lock
+-
+-   if self.settings["snapshot_path_hash"]==snapshot_cache_hash:
+-    print "Valid snapshot cache, skipping unpack of portage tree..."
+-    unpack=False
+   else:
+    destdir=normpath(self.settings["chroot_path"]+"/usr/portage")
+    cleanup_errmsg="Error removing existing snapshot directory."
+@@ -983,6 +981,7 @@
+  def chroot_setup(self):
+   self.makeconf=read_makeconf(self.settings["chroot_path"]+\
+    "/etc/portage/make.conf")
++  host_make=read_makeconf("/etc/portage/make.conf")
+   self.override_cbuild()
+   self.override_chost()
+   self.override_cflags()
+@@ -1029,61 +1028,90 @@
+      "Could not copy /etc/hosts",env=self.env)
+ 
+    """ Modify and write out make.conf (for the chroot) """
+-   cmd("rm -f "+self.settings["chroot_path"]+"/etc/portage/make.conf",\
+-    "Could not remove "+self.settings["chroot_path"]+\
+-    "/etc/portage/make.conf",env=self.env)
+-   myf=open(self.settings["chroot_path"]+"/etc/portage/make.conf","w")
+-   myf.write("# These settings were set by the catalyst build script that automatically\n# built this stage.\n")
+-   myf.write("# Please consult /usr/share/portage/config/make.conf.example for a more\n# detailed example.\n")
+-   if "CFLAGS" in self.settings:
+-    myf.write('CFLAGS="'+self.settings["CFLAGS"]+'"\n')
+-   if "CXXFLAGS" in self.settings:
+-    if self.settings["CXXFLAGS"]!=self.settings["CFLAGS"]:
+-     myf.write('CXXFLAGS="'+self.settings["CXXFLAGS"]+'"\n')
++   remove_it=1
++   try:
++    if self.makeconf['DONT_KILL_ME']:
++     remove_it=0
++   except:
++    pass
++   cflags=None
++   if "cflags" in self.settings:
++    cflags=' '.join(self.settings["cflags"])
++   else:
++    try:
++     cflags=self.settings["CFLAGS"]
++    except:
++     cflags="-O2 -pipe"
++   f=self.settings["chroot_path"]+"/etc/portage/make.conf"
++   if remove_it:
++    print 'Will create fresh make.conf'
++    cmd("rm -f "+f,"Could not remove "+f,env=self.env)
++    myf=open(f,"w")
++    myf.write('CFLAGS="'+cflags+'"\n')
++    myf.write('GENTOO_MIRRORS="'+host_make['GENTOO_MIRRORS'].replace('\n','')+'"\n')
++    if "CXXFLAGS" in self.settings:
++     if self.settings["CXXFLAGS"]!=cflags:
++      myf.write('CXXFLAGS="'+self.settings["CXXFLAGS"]+'"\n')
++     else:
++      myf.write('CXXFLAGS="${CFLAGS}"\n')
+     else:
+      myf.write('CXXFLAGS="${CFLAGS}"\n')
+-   else:
+-    myf.write('CXXFLAGS="${CFLAGS}"\n')
+ 
+-   if "LDFLAGS" in self.settings:
+-    myf.write("# LDFLAGS is unsupported.  USE AT YOUR OWN RISK!\n")
+-    myf.write('LDFLAGS="'+self.settings["LDFLAGS"]+'"\n')
+-   if "CBUILD" in self.settings:
+-    myf.write("# This should not be changed unless you know exactly what you are doing.  You\n# should probably be using a different stage, instead.\n")
+-    myf.write('CBUILD="'+self.settings["CBUILD"]+'"\n')
+-
+-   myf.write("# WARNING: Changing your CHOST is not something that should be done lightly.\n# Please consult http://www.gentoo.org/doc/en/change-chost.xml before changing.\n")
+-   myf.write('CHOST="'+self.settings["CHOST"]+'"\n')
+-
+-   """ Figure out what our USE vars are for building """
+-   myusevars=[]
+-   if "HOSTUSE" in self.settings:
+-    myusevars.extend(self.settings["HOSTUSE"])
+-
+-   if "use" in self.settings:
+-    myusevars.extend(self.settings["use"])
+-
+-   if myusevars:
+-    myf.write("# These are the USE flags that were used in addition to what is provided by the\n# profile used for building.\n")
+-    myusevars = sorted(set(myusevars))
+-    myf.write('USE="'+string.join(myusevars)+'"\n')
+-    if '-*' in myusevars:
+-     print "\nWarning!!!  "
+-     print "\tThe use of -* in "+self.settings["spec_prefix"]+\
+-      "/use will cause portage to ignore"
+-     print "\tpackage.use in the profile and portage_confdir. You've been warned!"
+-
+-   myf.write('PORTDIR="/usr/portage"\n')
+-   myf.write('DISTDIR="${PORTDIR}/distfiles"\n')
+-   myf.write('PKGDIR="${PORTDIR}/packages"\n')
++    if "LDFLAGS" in self.settings:
++     myf.write("# LDFLAGS is unsupported.  USE AT YOUR OWN RISK!\n")
++     myf.write('LDFLAGS="'+self.settings["LDFLAGS"]+'"\n')
++    if "CBUILD" in self.settings:
++     myf.write("# This should not be changed unless you know exactly what you are doing.  You\n# should probably be using a different stage, instead.\n")
++     myf.write('CBUILD="'+self.settings["CBUILD"]+'"\n')
++
++    myf.write("# WARNING: Changing your CHOST is not something that should be done lightly.\n# Please consult http://www.gentoo.org/doc/en/change-chost.xml before changing.\n")
++    myf.write('CHOST="'+self.settings["CHOST"]+'"\n')
++
++    """ Figure out what our USE vars are for building """
++    myusevars=[]
++    if "HOSTUSE" in self.settings:
++     myusevars.extend(self.settings["HOSTUSE"])
++
++    if "use" in self.settings:
++     myusevars.extend(self.settings["use"])
++
++    if myusevars:
++     myf.write("# These are the USE flags that were used in addition to what is provided by the\n# profile used for building.\n")
++     myusevars = sorted(set(myusevars))
++     myf.write('USE="'+string.join(myusevars)+'"\n')
++     if '-*' in myusevars:
++      print "\nWarning!!!  "
++      print "\tThe use of -* in "+self.settings["spec_prefix"]+\
++       "/use will cause portage to ignore"
++      print "\tpackage.use in the profile and portage_confdir. You've been warned!"
++
++    myf.write('PORTDIR="/usr/portage"\n')
++    myf.write('DISTDIR="/distfiles"\n')
++    myf.write('PKGDIR="${PORTDIR}/packages"\n')
++    if host_make.has_key('MAKEOPTS'):
++     myf.write('MAKEOPTS="%s"\n' % host_make['MAKEOPTS'])
++   else: # keep make.conf, maybe append something
++    print 'Will keep existing make.conf, maybe freshen'
++    replace_make_sett('CFLAGS', cflags, f)
++    replace_make_sett('GENTOO_MIRRORS', host_make['GENTOO_MIRRORS'], f)
++    myf=open(f,"a")
++
++   wget='/usr/local/bin/wget_via_proxy'
++   if os.path.exists(wget):
++    c='/etc/portage/wget_via_proxy'
++    if remove_it:
++     myf.write((r'FETCHCOMMAND="%s -O \"\${DISTDIR}/\${FILE}\" \"\${URI}\""'+\
++      '\n') % c)
++    cmd('cp %s %s' % (wget,self.settings["chroot_path"]+c))
+ 
+-   """ Setup the portage overlay """
++   """ Setup overlay """
+    if "portage_overlay" in self.settings:
+     myf.write('PORTDIR_OVERLAY="/usr/local/portage"\n')
+ 
+    myf.close()
+-   cmd("cp "+self.settings["chroot_path"]+"/etc/portage/make.conf "+\
+-    self.settings["chroot_path"]+"/etc/portage/make.conf.catalyst",\
++   cmd('sed -i -e "/^#/d" -e "/^$/d" '+f,
++    "Could not unshit /etc/portage/make.conf",env=self.env)
++   cmd("cp "+f+' '+f+'.catalyst',\
+     "Could not backup /etc/portage/make.conf",env=self.env)
+    touch(self.settings["autoresume_path"]+"chroot_setup")
+ 
+@@ -1222,9 +1250,9 @@
+    if not os.path.exists(mypath):
+     os.makedirs(mypath)
+ 
+-   print "Creating stage tarball..."
++   print "Creating stage tarball " + self.settings["target_path"]
+ 
+-   cmd("tar --xattrs --xattrs-include=security.capability --xattrs-include=user.pax.flags --selinux -I lbzip2 -cpf "+self.settings["target_path"]+" -C "+\
++   cmd("tar --xattrs --xattrs-include=security.capability --xattrs-include=user.pax.flags --selinux -cpf "+self.settings["target_path"]+" -C "+\
+     self.settings["stage_path"]+" .",\
+     "Couldn't create stage tarball",env=self.env)
+ 
