@@ -1,0 +1,12 @@
+--- docs/menu.lst
++++ docs/menu.lst
+@@ -11,6 +11,9 @@
+ # Fallback to the second entry.
+ fallback 1
+ 
++# Splash image to show behind grub.
++splashimage=(hd0,0)/boot/grub/splash.xpm.gz
++
+ # For booting GNU/Hurd
+ title  GNU/Hurd
+ root   (hd0,0)

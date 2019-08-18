@@ -1,0 +1,9 @@
+# This is a sample grub.conf
+
+default 0
+timeout 30
+
+#title take 0
+#root (hd0,0)
+#kernel /boot/kernel-take0 root=/dev/sda3
+#initrd /boot/initramfs-take0

@@ -1,0 +1,14 @@
+--- grub/docs/menu.lst
++++ grub/docs/menu.lst
+@@ -26,6 +26,11 @@
+ kernel /vmlinuz root=/dev/hdb1
+ #initrd /initrd.img
+ 
++# For booting Gentoo with the static rescue shell
++title  Gentoo (rescue shell)
++root (hd1,0)
++kernel /vmlinuz root=/dev/hdb1 init=/bin/bb
++
+ # For booting GNU/kFreeBSD
+ title  GNU/kFreeBSD
+ root   (hd0,2,a)

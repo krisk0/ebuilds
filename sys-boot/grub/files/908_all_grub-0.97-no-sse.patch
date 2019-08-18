@@ -1,0 +1,37 @@
+if we let the user's CFLAGS or default settings take effect, we might end up
+generating code that uses SSE.  but that doesn't work in real mode, so compile
+with -march set to the target tuple's cpu to avoid that, and any other ISA
+extensions in the early boot code.
+
+http://wiki.osdev.org/SSE#Adding_support
+
+https://bugs.gentoo.org/360513
+
+--- a/configure.ac
++++ b/configure.ac
+@@ -20,8 +20,12 @@
+ AC_CANONICAL_HOST
+ 
+ case "$host_cpu" in
+-i[[3456]]86) host_cpu=i386 ;;
+-x86_64) host_cpu=x86_64 ;;
++i[[3456]]86)
++  STAGE_MARCH="-march=$host_cpu"
++  host_cpu=i386 ;;
++x86_64)
++  STAGE_MARCH="-march=i686"
++  host_cpu=x86_64 ;;
+ *) AC_MSG_ERROR([unsupported CPU type]) ;;
+ esac
+ 
+@@ -124,8 +127,8 @@
+   fi
+ fi
+ 
+-STAGE1_CFLAGS="$STAGE1_CFLAGS -fno-strict-aliasing"
+-STAGE2_CFLAGS="$STAGE2_CFLAGS -fno-strict-aliasing"
++STAGE1_CFLAGS="$STAGE1_CFLAGS -fno-strict-aliasing $STAGE_MARCH"
++STAGE2_CFLAGS="$STAGE2_CFLAGS -fno-strict-aliasing $STAGE_MARCH"
+ GRUB_CFLAGS="$GRUB_CFLAGS -fno-strict-aliasing"
+ AC_SUBST(STAGE1_CFLAGS)
+ AC_SUBST(STAGE2_CFLAGS)

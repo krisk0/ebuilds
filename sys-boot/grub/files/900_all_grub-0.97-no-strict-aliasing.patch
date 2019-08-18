@@ -1,0 +1,16 @@
+the grub code violates aliasing rules pretty badly, and not worth
+the effort to go through the huge tree and fix code which is not
+being maintained upstream
+
+--- grub/configure.ac
++++ grub/configure.ac
+@@ -124,6 +124,9 @@
+   fi
+ fi
+ 
++STAGE1_CFLAGS="$STAGE1_CFLAGS -fno-strict-aliasing"
++STAGE2_CFLAGS="$STAGE2_CFLAGS -fno-strict-aliasing"
++GRUB_CFLAGS="$GRUB_CFLAGS -fno-strict-aliasing"
+ AC_SUBST(STAGE1_CFLAGS)
+ AC_SUBST(STAGE2_CFLAGS)
+ AC_SUBST(GRUB_CFLAGS)

@@ -1,0 +1,47 @@
+Only start graphics mode if, and only if the splashimage file is available.
+This saves trying to fall back to the original text mode and failing.
+
+X-WARNING: untested, waiting for feedback on bug #200505.
+Signed-off-by: Robin H. Johnson <robbat2@gentoo.org>
+
+diff -Nuar grub-0.97.orig/stage2/graphics.c grub-0.97/stage2/graphics.c
+--- grub-0.97.orig/stage2/graphics.c	2009-06-26 16:21:05.000000000 -0700
++++ grub-0.97/stage2/graphics.c	2009-06-26 16:29:28.162450103 -0700
+@@ -108,7 +108,11 @@
+  * mode.  */
+ int graphics_init()
+ {
+-    if (!graphics_inited) {
++    if(!grub_file_exists(splashimage)) {
++        return 0;
++    }
++
++    if (!graphics_inited) {
+         saved_videomode = set_videomode(0x12);
+     }
+ 
+@@ -549,4 +553,11 @@
+     MapMask(15);
+ }
+ 
++int grub_file_exists(char *s) {
++    if (!grub_open(s))
++        return 0;
++    grub_close();
++    return 1;
++}
++
+ #endif /* SUPPORT_GRAPHICS */
+diff -Nuar grub-0.97.orig/stage2/graphics.h grub-0.97/stage2/graphics.h
+--- grub-0.97.orig/stage2/graphics.h	2009-06-26 16:21:05.000000000 -0700
++++ grub-0.97/stage2/graphics.h	2009-06-26 16:34:03.302014350 -0700
+@@ -36,6 +36,9 @@
+ void set_int1c_handler();
+ void unset_int1c_handler();
+ 
++/* Only to check for safe opening before we start */
++int grub_file_exists(char *s);
++
+ extern short cursorX, cursorY;
+ extern char cursorBuf[16];
+ 

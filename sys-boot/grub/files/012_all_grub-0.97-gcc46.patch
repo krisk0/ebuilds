@@ -1,0 +1,20 @@
+Work around a miscompilation of stage2 with GCC 4.6.
+This flag is not the cause of the miscompilation, but disabling it has the side-effect
+of making it work at both -Os and -O2.
+
+Vague upstream bug:
+http://gcc.gnu.org/PR39333
+
+https://bugs.gentoo.org/360513
+
+--- a/stage2/Makefile.am
++++ b/stage2/Makefile.am
+@@ -85,7 +85,7 @@ else
+ GRAPHICS_FLAGS =
+ endif
+ 
+-STAGE2_COMPILE = $(STAGE2_CFLAGS) -fno-builtin -nostdinc \
++STAGE2_COMPILE = $(STAGE2_CFLAGS) -fno-reorder-functions -fno-builtin -nostdinc \
+ 	$(NETBOOT_FLAGS) $(SERIAL_FLAGS) $(HERCULES_FLAGS) $(GRAPHICS_FLAGS)
+ 
+ STAGE1_5_LINK = -nostdlib -Wl,-N -Wl,-Ttext -Wl,2000

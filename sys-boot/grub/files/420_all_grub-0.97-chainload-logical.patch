@@ -1,0 +1,35 @@
+X-Gentoo-Bug: 230905
+X-Gentoo-Bug-URL: http://bugs.gentoo.org/show_bug.cgi?id=230905
+Patch: http://bugs.gentoo.org/attachment.cgi?id=159669&action=view
+
+Support chainloading logical partitions.
+
+diff -ru grub-0.97/stage2/disk_io.c grub-0.97-patched/stage2/disk_io.c
+--- grub-0.97/stage2/disk_io.c	2004-05-23 18:35:24.000000000 +0200
++++ grub-0.97-patched/stage2/disk_io.c	2008-07-06 00:56:03.000000000 +0200
+@@ -746,6 +746,8 @@
+ #ifndef STAGE1_5
+ static unsigned long cur_part_offset;
+ static unsigned long cur_part_addr;
++static unsigned long cur_part_start;
++static int cur_part_entry;
+ #endif
+ 
+ /* Open a partition.  */
+@@ -815,6 +817,8 @@
+       
+       cur_part_offset = part_offset;
+       cur_part_addr = BOOT_PART_TABLE + (entry << 4);
++      cur_part_start = part_start;
++      cur_part_entry = entry;
+ #endif /* ! STAGE1_5 */
+ 
+       /* If this is a valid partition...  */
+@@ -1142,6 +1146,7 @@
+ 	  src = (char *) SCRATCHADDR + BOOTSEC_PART_OFFSET;
+ 	  while (dst < (char *) BOOT_PART_TABLE + BOOTSEC_PART_LENGTH)
+ 	    *dst++ = *src++;
++	  PC_SLICE_START (BOOT_PART_TABLE - PC_SLICE_OFFSET, cur_part_entry) = cur_part_start;
+ 	  
+ 	  /* Set the active flag of the booted partition.  */
+ 	  for (i = 0; i < 4; i++)

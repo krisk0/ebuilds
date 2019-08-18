@@ -1,0 +1,30 @@
+X-Gentoo-Bug: 160731
+X-Gentoo-Bug-URL: http://bugs.gentoo.org/show_bug.cgi?id=160731
+Patch: http://bugs.gentoo.org/attachment.cgi?id=105871&action=view
+
+Add netboot DHCP Vendor class identifier.
+
+http://savannah.gnu.org/bugs/?9451
+
+--- netboot/main.c
++++ netboot/main.c
+@@ -83,7 +83,9 @@
+   RFC2132_MAX_SIZE,2,	/* request as much as we can */
+   ETH_MAX_MTU / 256, ETH_MAX_MTU % 256,
+   RFC2132_PARAM_LIST, 4, RFC1533_NETMASK, RFC1533_GATEWAY,
+-  RFC1533_HOSTNAME, RFC1533_EXTENSIONPATH
++  RFC1533_HOSTNAME, RFC1533_EXTENSIONPATH,
++  /* Vendor class identifier */
++  RFC2132_VENDOR_CLASS_ID, 10, 'G', 'R', 'U', 'B', 'C', 'l', 'i', 'e', 'n', 't',
+ };
+ 
+ static const unsigned char dhcprequest[] =
+@@ -103,6 +105,8 @@
+   /* Etherboot vendortags */
+   RFC1533_VENDOR_MAGIC,
+   RFC1533_VENDOR_CONFIGFILE,
++  /* Vendor class identifier */
++  RFC2132_VENDOR_CLASS_ID, 10, 'G', 'R', 'U', 'B', 'C', 'l', 'i', 'e', 'n', 't',
+ };
+ 
+ #endif /* ! NO_DHCP_SUPPORT */

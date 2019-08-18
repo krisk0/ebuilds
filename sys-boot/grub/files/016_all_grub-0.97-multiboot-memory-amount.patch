@@ -1,0 +1,18 @@
+Gentoo bug #188312
+
+Buggy BIOS plus compiler makes boxes with 16GB of RAM show up as less than 4GB
+under Xen.
+
+diff -Nuar grub-0.97.orig/stage2/common.c grub-0.97/stage2/common.c
+--- grub-0.97.orig/stage2/common.c	2004-03-27 08:25:44.000000000 -0800
++++ grub-0.97/stage2/common.c	2008-02-29 21:41:30.962021889 -0800
+@@ -142,7 +142,8 @@
+ init_bios_info (void)
+ {
+ #ifndef STAGE1_5
+-  unsigned long cont, memtmp, addr;
++  unsigned long memtmp, addr;
++  volatile unsigned long cont;
+   int drive;
+ #endif
+ 

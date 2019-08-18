@@ -1,0 +1,27 @@
+X-Gentoo-Bug: 259613
+X-Gentoo-Bug-URL: http://bugs.gentoo.org/show_bug.cgi?id=259613
+X-Redhat-Bug: 479760
+X-Redhat-Bug-URL: https://bugzilla.redhat.com/show_bug.cgi?id=479760
+Original-Patch: https://bugzilla.redhat.com/attachment.cgi?id=328792
+
+Respun from original patch. Support KVM vd[A-Z][0-9] style disks.
+
+diff -Nuar --exclude '*.orig' --exclude '*.rej' grub-0.97.orig/util/grub-install.in grub-0.97/util/grub-install.in
+--- grub-0.97.orig/util/grub-install.in	2010-06-25 04:19:17.997447837 +0000
++++ grub-0.97/util/grub-install.in	2010-06-25 04:21:29.466324286 +0000
+@@ -96,13 +96,13 @@
+     # Break the device name into the disk part and the partition part.
+     case "$host_os" in
+     linux*)
+-	tmp_disk=`echo "$1" | sed -e 's%\([sh]d[a-z]\)[0-9]*$%\1%' \
++	tmp_disk=`echo "$1" | sed -e 's%\([shv]d[a-z]\)[0-9]*$%\1%' \
+ 				  -e 's%\(d[0-9]*\)p[0-9]*$%\1%' \
+ 				  -e 's%\(fd[0-9]*\)$%\1%' \
+ 				  -e 's%/part[0-9]*$%/disc%' \
+ 				  -e 's%\(c[0-7]d[0-9]*\).*$%\1%' \
+ 				  -e 's%\(e[0-9]\.[0-9]*\).*$%\1%'`
+-	tmp_part=`echo "$1" | sed -e 's%.*/[sh]d[a-z]\([0-9]*\)$%\1%' \
++	tmp_part=`echo "$1" | sed -e 's%.*/[shv]d[a-z]\([0-9]*\)$%\1%' \
+ 				  -e 's%.*d[0-9]*p%%' \
+ 				  -e 's%.*/fd[0-9]*$%%' \
+ 				  -e 's%.*/floppy/[0-9]*$%%' \
