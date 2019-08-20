@@ -1,5 +1,5 @@
 # Copyright 1999-2015 Gentoo Foundation
-# Copyright      2019 Gentoo Foundation
+# Copyright      2019 Денис Крыськов aka krisk0
 # Distributed under the terms of the GNU General Public License v2
 
 # XXX: we need to review menu.lst vs grub.conf handling.  We've been converting
@@ -18,7 +18,7 @@
 
 EAPI=5
 
-inherit eutils mount-boot toolchain-funcs linux-info flag-o-matic autotools pax-utils multiprocessing
+inherit eutils mount-boot toolchain-funcs linux-info flag-o-matic autotools pax-utils
 
 DESCRIPTION="GNU GRUB Legacy boot loader"
 HOMEPAGE="https://www.gnu.org/software/grub/"
