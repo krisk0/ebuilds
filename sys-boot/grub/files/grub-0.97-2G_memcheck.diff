@@ -1,0 +1,80 @@
+Upstream-Bug: http://savannah.gnu.org/bugs/?func=detailitem&item_id=9954
+Gentoo-Bug: http://bugs.gentoo.org/99897
+Debian-Patch: 2gb_limit.diff
+
+Patch from upstream bug tracker to fix memory checks on systems with more than 2G or memory 
+
+Fixed by krisk0 19 Aug 2019 so it applies after grub-0.97-reiser4progs-1.0.5 patch
+
+TODO: ?add "cc" to clobber list of some asm statements?
+--- a/stage2/char_io.c	2019-08-19 11:02:15.000000000 +0300
++++ b/stage2/char_io.c	2019-08-19 11:12:33.259995404 +0300
+@@ -1214,7 +1214,7 @@
+ # endif
+ #endif
+ int
+-memcheck (int addr, int len)
++memcheck (unsigned long addr, unsigned long len)
+ {
+ #ifdef GRUB_UTIL
+ # ifdef __PIC__
+@@ -1226,23 +1226,23 @@
+     return ! errnum;
+ #  endif
+ # else /* __PIC__ */
+-  auto int start_addr (void);
+-  auto int end_addr (void);
++  auto unsigned long start_addr (void);
++  auto unsigned long end_addr (void);
+   
+-  auto int start_addr (void)
++  auto unsigned long start_addr (void)
+     {
+-      int ret;
++      unsigned long ret;
+ # if defined(HAVE_START_SYMBOL)
+       asm volatile ("movl	$start, %0" : "=a" (ret));
+ # elif defined(HAVE_USCORE_START_SYMBOL)
+       asm volatile ("movl	$_start, %0" : "=a" (ret));
+ # endif
+-		return ret;
++      return ret;
+     }
+ 
+-  auto int end_addr (void)
++  auto unsigned long end_addr (void)
+     {
+-      int ret;
++      unsigned long ret;
+ # if defined(HAVE_END_SYMBOL)
+       asm volatile ("movl	$end, %0" : "=a" (ret));
+ # elif defined(HAVE_USCORE_END_SYMBOL)
+@@ -1279,7 +1279,7 @@
+ void *
+ grub_memmove (void *to, const void *from, int len)
+ {
+-   if (memcheck ((int) to, len))
++   if (memcheck ((unsigned long) to, len))
+      {
+        /* This assembly code is stolen from
+ 	  linux-2.2.2/include/asm-i386/string.h. This is not very fast
+@@ -1317,7 +1317,7 @@
+ {
+   char *p = start;
+ 
+-  if (memcheck ((int) start, len))
++  if (memcheck ((unsigned long) start, len))
+     {
+       while (len -- > 0)
+ 	*p ++ = c;
+--- a/stage2/shared.h
++++ b/stage2/shared.h
+@@ -912,7 +912,7 @@ int substring (const char *s1, const cha
+ int nul_terminate (char *str);
+ int get_based_digit (int c, int base);
+ int safe_parse_maxint (char **str_ptr, int *myint_ptr);
+-int memcheck (int start, int len);
++int memcheck (unsigned long start, unsigned long len);
+ void grub_putstr (const char *str);
+ 
+ #ifndef NO_DECOMPRESSION
