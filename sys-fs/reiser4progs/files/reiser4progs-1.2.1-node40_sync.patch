@@ -1,0 +1,25 @@
+configure:6484: checking for reiser4_fs_open in -lreiser4-minimal
+configure:6510: x86_64-pc-linux-gnu-gcc -m32 -o conftest   -Wall -Wmissing-prototypes -Wunused -Wshadow -Wpointer-arith -falign-jumps=1 -falign-loops=1 -falign-functions=1 -Wundef -Wl,-O1 -Wl,--as-needed -Wl,--defsym=__gentoo_check_ldflags__=0 -static -no-pie -Wl,--build-id=none conftest.c -lreiser4-minimal -laal-minimal -laal-minimal  >&5
+/usr/lib/gcc/x86_64-pc-linux-gnu/8.3.0/../../../../x86_64-pc-linux-gnu/bin/ld: /usr/lib/gcc/x86_64-pc-linux-gnu/8.3.0/../../../../lib/libreiser4-minimal.a(libnode41_minimal_la-node41.o): in function `node41_sync':
+(.text+0x143): undefined reference to `node40_sync'
+
+Hmm, why libreiser4-minimal contains function node41_sync that calls node40_sync that is not defined? Fix this by moving node41_sync function out of libreiser4-minimal
+
+diff -urN plugin/node/node41/node41.c plugin/node/node41/node41.c
+--- a/plugin/node/node41/node41.c	2017-09-28 10:08:17.000000000 -0000
++++ b/plugin/node/node41/node41.c	2019-08-21 20:38:56.055054038 -0000
+@@ -74,13 +74,12 @@
+ 	return entity;
+ }
+ 
++#ifndef ENABLE_MINIMAL
+ errno_t node41_sync(reiser4_node_t *entity) {
+ 	csum_node41(entity, 0 /* update */);
+ 	return node40_sync(entity);
+ }
+ 
+-#ifndef ENABLE_MINIMAL
+-
+ /* Returns maximal size of item possible for passed node instance */
+ static uint16_t node41_maxspace(reiser4_node_t *entity) {
+ 	aal_assert("edward-8", entity != NULL);
