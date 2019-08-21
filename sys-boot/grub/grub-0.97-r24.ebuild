@@ -2,6 +2,8 @@
 # Copyright      2019 Денис Крыськов aka krisk0
 # Distributed under the terms of the GNU General Public License v2
 
+# Warning: this ebuild currently fails to compile anything useful
+
 # XXX: we need to review menu.lst vs grub.conf handling.  We've been converting
 #      all systems to grub.conf (and symlinking menu.lst to grub.conf), but
 #      we never updated any of the source code (it still all wants menu.lst),
