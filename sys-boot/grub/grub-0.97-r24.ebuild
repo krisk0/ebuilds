@@ -232,10 +232,11 @@ setup_boot_dir() {
     }
 
     [[ -e ${dir}/grub.conf ]] || {
-        local s="${ROOT}/usr/share/doc/${PF}/grub.conf.gentoo"
-        [[ -e "${s}" ]] && cat "${s}" >${dir}/grub.conf
-        [[ -e "${s}.gz" ]] && zcat "${s}.gz" >${dir}/grub.conf
-        [[ -e "${s}.bz2" ]] && bzcat "${s}.bz2" >${dir}/grub.conf
+        local s="$ROOT/usr/share/doc/$PF/grub.conf.gentoo"
+        # TODO: should be better way to unpack .bz2 than ugly code below
+        [[ -e $s ]] && cat "$s" >${dir}/grub.conf
+        [[ -e $s.gz ]] && zcat "$s.gz" >${dir}/grub.conf
+        [[ -e $s.bz2 ]] && bzcat "$s.bz2" >${dir}/grub.conf
     }
 
     # Don't know if we built grub that supports splash. Keep code below that copies the
