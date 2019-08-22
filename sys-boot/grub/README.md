@@ -9,9 +9,9 @@ A detailed instruction of building the latter follows. To build the former, do w
 Change to `ebuilds` directory (one with `sys-libs/ sys-fs/ sys-boot/ README.md`). Run the following shell script:
 ```sh
 for i in sys-libs/libaal/libaal-1.0.7-r1 sys-fs/reiser4progs/reiser4progs-1.2.1-r1 \
-        sys-boot/grub/grub-0.97-r24.ebuild ; do
+        sys-boot/grub/grub-0.97-r24 ; do
     ABI_X86="32 64" USE='static-libs -custom-cflags' \
-    ebuild --skip-manifest $i clean install qmerge || exit
+    ebuild --skip-manifest $i.ebuild clean install qmerge || exit
 done
 ```
 

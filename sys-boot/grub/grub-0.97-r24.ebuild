@@ -52,35 +52,25 @@ src_prepare() {
         || die
 
     # reiser4 patches
-    epatch "$FILESDIR"/grub-0.97-reiser4progs-1.0.5.diff
+    epatch "$FILESDIR"/grub-0.97-reiser4-20060227.diff
+    # insert -fno-stack-protector like 011_all_grub-0.97-varargs does
+    #sed -i 's|$(GRUB_CFLAGS)|\0 -fno-stack-protector|' stage2/Makefile.am
+    
     # Fix memcheck() procedure so it works when RAM size is >2G, #99897
-    epatch "$FILESDIR"/grub-0.97-2G_memcheck.diff
+    #epatch "$FILESDIR"/grub-0.97-2G_memcheck.diff
     # Crunched 820_all_grub-0.97-cvs-sync.patch (debian 0.97-47)
-    epatch "$FILESDIR"/820-grub-0.97-debian47.diff
+    #epatch "$FILESDIR"/820-grub-0.97-debian47.diff
 
     # #564890, #566638, and other
     local skip_em t b skip_this
-    # Omit splash screen patch; ?splash will be unavailable?
-    # Omit PIC patches -- a different set of PIC pathes already applied
-    # Omit AM_PROG_AS patch -- AM_PROG_AS already inserted
-    # Omit stage2/size_test patch -- already applied (grub-0.97-reiser4...)
-    # Don't insert flag no-reorder-functions -- GCC 4.6 compatibility is not required
-    # Omit memcheck() patch -- already applied (grub-0.97-2G_memcheck.diff)
-    # Don't fix stack protection segfault -- already fixed by grub-0.97-reiser4...
-    # Omit 820_all_grub-0.97-cvs-sync -- replaced by 820-grub-0.97-debian47.diff
-    # Omit 821_all_grub-0.97-grub-special_device_names -- already applied
-    # Omit 830_all_grub-0.97-raid_cciss; ?cciss will not be supported?
+    # Omit graphic patches; splash will be unavailable
+    # Omit no-stack-protector patch -- already applied
+    # Omit 012_all_grub-0.97-gcc46 -- GCC 4.6 compatibility not required
     skip_em="
             001_all_grub-0.95.20040823-splash
-            005_all_grub-0.96-PIC
-            008_all_grub-0.97-AM_PROG_AS
-            010_all_grub-0.96-bounced-checks
+            002_all_grub-0.97-splashimage-safety
+            011_all_grub-0.97-varargs
             012_all_grub-0.97-gcc46
-            015_all_grub-0.96-unsigned-addresses
-            040_all_grub-0.96-nxstack
-            820_all_grub-0.97-cvs-sync
-            821_all_grub-0.97-grub-special_device_names
-            830_all_grub-0.97-raid_cciss
             "
     for t in "$FILESDIR"/*.patch ; do
         b=`basename "$t"`
@@ -152,6 +142,15 @@ src_configure() {
             die "ncurses use flag is set but the library is not found"
     grep -qs "HAVE_LIBREISER4_MINIMAL.*1" config.h ||
             die "reiser4-minimal library with mmap support not found"
+            
+    # -nostdlib switch results in multiple symbol-not-defined errors. Like 
+    #
+    #   In function `cde40_get_name':(...): undefined reference to `__stack_chk_fail_local'
+    #
+    # Either -nostdlib should be removed, or extra libs should be added after -laal-minimal
+    # We choose the second option: append -l...
+    sed -i 's:-lreiser4-minimal -laal-minimal:\0 -lc -lgcc -lgcc_eh -lc:' \
+        `find . -name Makefile` || die
 }
 
 src_compile() {
