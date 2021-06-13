@@ -1,8 +1,7 @@
 # Copyright 2021 Денис Крыськов aka krisk0
 # Distributed under the terms of the GNU General Public License v2
 
-# Deprecation warnings are shown when compiling, ignore them
-# TODO: why compilation is not multitasked?
+# Installed package does not wotk. Don't use this script.
 
 EAPI=7
 
