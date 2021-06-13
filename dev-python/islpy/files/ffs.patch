@@ -1,0 +1,11 @@
+diff -urN o/isl/isl_hash.c n/isl/isl_hash.c
+--- o/isl/isl_hash.c	2020-07-02 00:00:10.000000000 +0300
++++ n/isl/isl_hash.c	2021-06-13 09:45:26.570769147 +0300
+@@ -8,6 +8,7 @@
+  */
+ 
+ #include <stdlib.h>
++#include <strings.h>
+ #include <isl/hash.h>
+ #include <isl/ctx.h>
+ #include "isl_config.h"
