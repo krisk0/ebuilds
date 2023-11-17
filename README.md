@@ -6,6 +6,8 @@ Reason for creating `gmpy2-...ebuild`: official .ebuild is dated (hard to use th
 
 Reason for creating `gmp-...ebuild`: official .ebuild installs crippled library (without microarch optimization).
 
+**In approximately 2014 my idea to un-cripple gmp ebuild was rejected by Gentoo developers without explanation. Bug filed by me was closed with no comment with reason `won't fix`. As of today (17 Nov 2023) gmp-6.3.0.ebuild installs properly optimized library when use flag -cpudetection is set (at least on AMD64 platform). It is good that Gentoo folks finally returned to sanity.**
+
 Reason for messing up with `iridium-browser`: want a fast browser that does not segfault as often as Firefox and does not phone home as often as Chromium.
 
 Reason for modifying `telegram-desktop...ebuild`: original did not work for me.
