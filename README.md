@@ -2,11 +2,13 @@
 
 useful for me and possibly for you, too.
 
+As of 2023, all scripts found in this repository are obsolete (probably except for Python2 stuff). Use [ungoogled chromium ebuild](https://gpo.zugaina.org/www-client/ungoogled-chromium), and official ebuilds. Don't forget to set use flag `-cpudetection` when building GMP. See note below on fight over GMP ebuild.
+
 Reason for creating `gmpy2-...ebuild`: official .ebuild is dated (hard to use that `gmpy2` from Cython).
 
 Reason for creating `gmp-...ebuild`: official .ebuild installs crippled library (without microarch optimization).
 
-**In approximately 2014 my idea to un-cripple gmp ebuild was rejected by Gentoo developers without explanation. Bug filed by me was closed with no comment with reason `won't fix`. As of today (17 Nov 2023) gmp-6.3.0.ebuild installs properly optimized library when use flag -cpudetection is set (at least on AMD64 platform). It is good that Gentoo folks finally returned to sanity.**
+**In 2015 my patch to un-cripple gmp ebuild was rejected by Gentoo developers without explanation. [Bug filed by me](https://bugs.gentoo.org/545442) was closed with no comment with resolution `won't fix`. The problem of crippled GMP was stated before in [2008](https://bugs.gentoo.org/235697). It was fixed in 2022 with gmp-6.3.0.ebuild. Now GMP installs properly optimized library when use flag `-cpudetection` is set (at least on AMD64 platform). It took three bug reports, at least one forum discussion and 17 years to convince Gentoo folks.**
 
 Reason for messing up with `iridium-browser`: want a fast browser that does not segfault as often as Firefox and does not phone home as often as Chromium.
 
