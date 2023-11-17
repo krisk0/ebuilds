@@ -8,7 +8,7 @@ Reason for creating `gmpy2-...ebuild`: official .ebuild is dated (hard to use th
 
 Reason for creating `gmp-...ebuild`: official .ebuild installs crippled library (without microarch optimization).
 
-**In 2015 my patch to un-cripple gmp ebuild was rejected by Gentoo developers without explanation. [Bug filed by me](https://bugs.gentoo.org/545442) was closed with no comment with resolution `won't fix`. The problem of crippled GMP was stated before in [2008](https://bugs.gentoo.org/235697). It was fixed in 2022 with gmp-6.3.0.ebuild. Now GMP installs properly optimized library when use flag `-cpudetection` is set (at least on AMD64 platform). It took three bug reports, at least one forum discussion and 17 years to convince Gentoo folks.**
+**In 2015 my patch to un-cripple gmp ebuild was rejected by Gentoo developers without explanation. [Bug filed by me](https://bugs.gentoo.org/545442) was closed with no comment with resolution `won't fix`. The problem of crippled GMP was stated before in [2008](https://bugs.gentoo.org/235697). It was fixed in 2022 with gmp-6.3.0.ebuild. Now GMP installs properly optimized library when use flag `-cpudetection` is set (at least on AMD64 platform). It took three bug reports, at least one forum discussion and 14 years to convince Gentoo folks.**
 
 Reason for messing up with `iridium-browser`: want a fast browser that does not segfault as often as Firefox and does not phone home as often as Chromium.
 
