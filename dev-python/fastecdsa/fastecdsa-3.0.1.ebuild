@@ -23,11 +23,11 @@ DEPEND="${PYTHON_DEPS}"
 if [[ ${PV} == 9999 ]]; then
 	inherit git-r3
 
-	EGIT_REPO_URI="https://github.com/AntonKueltz/fastecdsa.git"
+	EGIT_REPO_URI="$HOMEPAGE.git"
 	EGIT_BRANCH="master"
 	SRC_URI=""
 	KEYWORDS=""
 else
-	SRC_URI="$HOMEPAGE/releases/download/v$PV/fastecdsa-${PV}.tar.gz"
+	SRC_URI="$HOMEPAGE/releases/download/v$PV/$P.tar.gz"
 	KEYWORDS=amd64
 fi
