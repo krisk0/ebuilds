@@ -14,6 +14,7 @@ DESCRIPTION="Fast and easy-to-use Bitcoin library"
 HOMEPAGE=https://github.com/ofek/bit
 SRC_URI="$HOMEPAGE/archive/$COMMIT.tar.gz -> $P.tar.gz"
 S=${WORKDIR}/${PN}-${COMMIT}
+RESTRICT=mirror
 
 LICENSE=MIT
 SLOT=0
