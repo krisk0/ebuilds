@@ -2,6 +2,10 @@
 # Copyright 2026 krisk0
 # Distributed under the terms of the GNU General Public License v2
 
+# As of 11 Nov 2026, does not work. Error message:
+#  checking for libxfce4util-1.0 >= 4.6.0 libxfce4panel-1.0 >=
+#   4.6.0... no
+
 EAPI=7
 inherit autotools flag-o-matic
 
